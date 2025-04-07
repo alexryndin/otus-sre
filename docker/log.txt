@@ -1,0 +1,68 @@
+ podman build -v $PWD/requirements.txt:/app/requirements.txt:z .
+STEP 1/11: FROM python:3.11.4-slim AS base
+Resolved "python" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+Trying to pull docker.io/library/python:3.11.4-slim...
+Getting image source signatures
+Copying blob sha256:195bd9e1cc4ce5c5a37dd5aa84655124ccb493c78fedcdd7c51e032f170791f2
+Copying blob sha256:493e98a6d531d3e898241b29e0b8e182289a651c4f9f7d67bb1f50d9811a1b43
+Copying blob sha256:4ee097f9a36616fddb52e45aba72142c4bc6f2e594f0a746e406acfde4f02f51
+Copying blob sha256:ed400aec434dd69b5fec2ef7cf80866b6b17455124631ccf81dc46fda19eb2d3
+Copying blob sha256:a18610e9d04ba666042cc81099c8673493d266d52fc73d8a3e5bf72b4f0023e8
+Copying config sha256:20623ffc5d2a3f76f4c138b9e642d4f542d37ee2c5ac8c7151ab8790e28d823d
+Writing manifest to image destination
+STEP 2/11: ENV PYTHONDONTWRITEBYTECODE=1
+--> 331bb7e7f297
+STEP 3/11: ENV PYTHONUNBUFFERED=1
+--> 4c37787f9253
+STEP 4/11: WORKDIR /app
+--> 4b67c4774aeb
+STEP 5/11: ARG UID=10001
+--> 8ab957f04fe1
+STEP 6/11: RUN adduser     --disabled-password     --gecos ""     --home "/nonexistent"     --shell "/sbin/nologin"     --no-create-home     --uid "${UID}"     appuser
+adduser: Warning: The home dir /nonexistent you specified can't be accessed: No such file or directory
+Adding user `appuser' ...
+Adding new group `appuser' (10001) ...
+Adding new user `appuser' (10001) with group `appuser (10001)' ...
+Not creating `/nonexistent'.
+Adding new user `appuser' to supplemental / extra groups `users' ...
+Adding user `appuser' to group `users' ...
+--> 5e3b7dc774fd
+STEP 7/11: RUN --mount=type=cache,target=/root/.cache/pip     --mount=type=bind,source=requirements.txt,target=requirements.txt     python3 -m pip install -r requirements.txt
+Collecting flask (from -r requirements.txt (line 1))
+  Downloading flask-3.1.0-py3-none-any.whl (102 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.0/103.0 kB 2.3 MB/s eta 0:00:00
+Collecting prometheus-client (from -r requirements.txt (line 2))
+  Downloading prometheus_client-0.21.1-py3-none-any.whl (54 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.7/54.7 kB 10.3 MB/s eta 0:00:00
+Collecting Werkzeug>=3.1 (from flask->-r requirements.txt (line 1))
+  Downloading werkzeug-3.1.3-py3-none-any.whl (224 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 224.5/224.5 kB 5.2 MB/s eta 0:00:00
+Collecting Jinja2>=3.1.2 (from flask->-r requirements.txt (line 1))
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 29.1 MB/s eta 0:00:00
+Collecting itsdangerous>=2.2 (from flask->-r requirements.txt (line 1))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Collecting click>=8.1.3 (from flask->-r requirements.txt (line 1))
+  Downloading click-8.1.8-py3-none-any.whl (98 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 98.2/98.2 kB 23.8 MB/s eta 0:00:00
+Collecting blinker>=1.9 (from flask->-r requirements.txt (line 1))
+  Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.1.2->flask->-r requirements.txt (line 1))
+  Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (23 kB)
+Installing collected packages: prometheus-client, MarkupSafe, itsdangerous, click, blinker, Werkzeug, Jinja2, flask
+Successfully installed Jinja2-3.1.6 MarkupSafe-3.0.2 Werkzeug-3.1.3 blinker-1.9.0 click-8.1.8 flask-3.1.0 itsdangerous-2.2.0 prometheus-client-0.21.1
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+[notice] A new release of pip is available: 23.1.2 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+--> 84261dfd35d9
+STEP 8/11: USER appuser
+--> 5f3fe3fd7e42
+STEP 9/11: COPY . .
+--> 73d50a5abc14
+STEP 10/11: EXPOSE 3000
+--> 21a2fadb4b34
+STEP 11/11: CMD python3 -m flask run --host=0.0.0.0 --port=3000
+COMMIT
+--> f3985b6fc6c5
+f3985b6fc6c5c01ede237d9ccea66085883a54acb456bc4ae8f7fbb5e80efa6c
