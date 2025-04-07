@@ -47,3 +47,33 @@ resource "kubernetes_role_binding" "pod_reader_binding" {
     namespace = "otus"
   }
 }
+
+resource "kubernetes_cluster_role" "cluster_reader" {
+  metadata {
+    name = "cluster-reader"
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["*"]  # All core resources
+    verbs      = ["get", "list", "watch"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "cluster_reader_binding" {
+  metadata {
+    name = "cluster-reader-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-reader"
+  }
+
+  subject {
+    kind      = "User"
+    name      = "jane.doe@example.com"  # Your user
+    api_group = "rbac.authorization.k8s.io"
+  }
+}
