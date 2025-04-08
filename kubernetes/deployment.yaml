@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-go-app-deployment
+  namespace: otus
+  labels:
+    app: py-go-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: py-go-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  template:
+    metadata:
+      labels:
+        app: py-go-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:  # Enforce during scheduling
+          - labelSelector:
+              matchLabels:
+                app: py-go-app
+            topologyKey: "kubernetes.io/hostname"  # Spread across different nodes
+      containers:
+      - name: py-go-app
+        image: "docker.io/rlambda/py-go-app"
+#        imagePullPolicy: Never  # Use the local image in Minikube
+        ports:
+        - containerPort: 3000  # Flask app
+        - containerPort: 8080  # Go app
+        env:
+        - name: PORT
+          value: "8080"
+        - name: APP_USER
+          value: boss
+        - name: APP_PASSWORD
+          value: "123"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - "-c"
+              - "true"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
